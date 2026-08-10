@@ -1,0 +1,64 @@
+<!--
+  Evaluation questions for census-trade-mcp-server.
+
+  All questions are grounded in January 2013 / June 2013 monthly trade data - final,
+  annually-revised figures from over a decade ago that will never change again, chosen
+  specifically for answer stability. Reference answers were verified directly against
+  the Census Bureau's own official "International Trade Data API User Guide" (worked
+  examples with real output), not derived from the server's implementation.
+
+  Run with (requires a real CENSUS_API_KEY and ANTHROPIC_API_KEY):
+    python scripts/evaluation.py -t stdio -c node -a dist/index.js \
+      -e CENSUS_API_KEY=<your key> evaluation/questions.xml
+-->
+<evaluation>
+  <qa_pair>
+    <question>Using the Census International Trade Data API's exports/hs dataset, what was the total value of U.S. exports (ALL_VAL_MO), across all countries and all Harmonized System commodities combined, for January 2013? Answer with the exact dollar figure as a plain integer, no commas or currency symbol.</question>
+    <answer>123031879061</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Look up the Census CTY_CODE values for Guatemala and Belize, then use the exports/hs dataset to find each country's total value of U.S. exports (ALL_VAL_MO) for January 2013. What is Guatemala's value minus Belize's value, in dollars? Answer as a plain integer.</question>
+    <answer>408182916</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Using the exports/hs dataset with SUMMARY_LVL=CGP for June 2013, which of these four world regions had the highest year-to-date export value (ALL_VAL_YR): Europe, Asia, Australia and Oceania, or Africa? Answer with the region name exactly as it appears in the CTY_NAME field (all capital letters).</question>
+    <answer>ASIA</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>According to the exports/hs dataset, what was the monthly export value (ALL_VAL_MO) from the United States to Saint Pierre and Miquelon in June 2013? Answer as a plain integer, in dollars.</question>
+    <answer>0</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Using the exports/enduse dataset at the 1-digit End-Use aggregation level (COMM_LVL=EU1), what was the total U.S. export value (ALL_VAL_MO) for End-Use code "0" in January 2013? Answer as a plain integer, in dollars.</question>
+    <answer>11908153216</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Using the imports/hs dataset at the 2-digit HS aggregation level (COMM_LVL=HS2) for January 2013, which single 2-digit HS commodity code among 01, 02, 03, and 04 had the highest general import value (GEN_VAL_MO)? Answer with just the 2-digit code.</question>
+    <answer>03</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Using the exports/hs dataset with the DF (Domestic/Foreign) parameter for January 2013, across all countries and all commodities, what was the value of foreign exports (DF=2, i.e. re-exports of foreign-origin merchandise), in dollars (ALL_VAL_MO)? Answer as a plain integer.</question>
+    <answer>15782111880</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>In the Census International Trade Data API, which dataset is broken out by U.S. state (instead of customs district) and is limited to 2-, 4-, and 6-digit HS codes only, with no 10-digit detail, to protect respondent confidentiality? Give the short dataset code exactly as used in the API path (e.g. "hs", "naics").</question>
+    <answer>statehs</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>What is the Census Bureau's CTY_CODE grouping code that represents the "European Union" as a country grouping in the International Trade Data API?</question>
+    <answer>0003</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>For January 2013, using the exports/hs dataset broken out by country (CTY_CODE, CTY_NAME, ALL_VAL_MO), which single country was the largest destination for total U.S. exports that month? Answer with the country name exactly as returned in the CTY_NAME field.</question>
+    <answer>CANADA</answer>
+  </qa_pair>
+</evaluation>
