@@ -41,8 +41,9 @@ export const datasetSchema = z
 const timeDescription =
   "Time period to query, as 'YYYY-MM' for a single month (e.g. '2024-03'), or " +
   "'from YYYY-MM to YYYY-MM' for a range (e.g. 'from 2023-01 to 2023-12'). " +
-  "Either 'time' or both 'year' and 'months' must be provided. For large queries, " +
-  "prefer 'year'+'months' over a 'time' range - it is processed more efficiently by the Census API.";
+  "Either 'time' or both 'year' and 'months' must be provided. 'year'+'months' is useful for a " +
+  "non-contiguous set of months within one year (e.g. months=['01','03','07']); a 'time' range " +
+  "is simpler for a contiguous span. Both return one row per month with equivalent results.";
 
 export const timeParamsSchema = z.object({
   time: z.string().min(6).max(30).optional().describe(timeDescription),
@@ -79,7 +80,11 @@ export const getFieldsSchema = z
     "Census API variable names to return as columns, e.g. ['CTY_CODE','CTY_NAME','ALL_VAL_MO']. " +
       "Must be valid for the chosen dataset/direction - use get_dataset_variables to look them up. " +
       "Descriptive text fields (e.g. CTY_NAME, DIST_NAME, E_COMMODITY_LDESC) require their matching code " +
-      "field (CTY_CODE, DISTRICT, E_COMMODITY) to also be included, or the API will error."
+      "field (CTY_CODE, DISTRICT, E_COMMODITY) to also be included, or the API will error. " +
+      "Quantity fields (QTY_1_MO, QTY_2_MO, GEN_QY1_MO, GEN_QY2_MO, CON_QY1_MO, CON_QY2_MO, and their *_YR " +
+      "year-to-date variants) report \"0\" for both true zeros and missing/unavailable data - always also " +
+      "request the matching *_FLAG field (e.g. QTY_1_MO_FLAG) alongside any quantity field: \"M\" means the " +
+      "value is missing, blank means it is a true zero."
   );
 
 export const commLevelSchema = z
@@ -96,5 +101,24 @@ export const summaryLevelSchema = z
   .optional()
   .describe(
     "'DET' restricts results to individual trading partners; 'CGP' restricts results to country groupings " +
-      "(regions, trade blocs) instead of individual countries. Omit to receive both mixed together."
+      "(regions, trade blocs, e.g. \"4XXX\" Europe, \"0001\" OPEC) instead of individual countries. Omit to " +
+      "receive both mixed together in one response - if you then sum a value field across all returned rows " +
+      "to compute a total, you will double-count (once for the individual country, again for any grouping it " +
+      "belongs to). Always set this to 'DET' when you plan to sum/aggregate CTY_CODE rows yourself."
+  );
+
+export const summaryLevel2Schema = z
+  .string()
+  .optional()
+  .describe(
+    "SUMMARY_LVL2: restricts results to rows summarized by a specific combination of variables, built from " +
+      "2-letter codes concatenated together, e.g. 'HSDTCY' for HS-by-district-by-country rows only. " +
+      "Codes shared by both directions: TO (total), DT (district), CY (country), HS/NA/EU/US/SI/HT " +
+      "(commodity by classification system - HS, NAICS, End-use, USDA, SITC, Hi-tech). " +
+      "Exports only: DF (domestic/foreign), PT (port), ST (state of origin). " +
+      "Imports only: CS (country subcode), RP (rate provision), PT (port), ST (state of destination). " +
+      "See the Census API User Guide Appendix C (export codes) / Appendix D (import codes) for the full list " +
+      "of valid combinations. Validated locally against the direction (exports/imports) and the chosen " +
+      "'dataset' before the request is sent - an invalid or dataset-incompatible combination is rejected " +
+      "immediately with an explanation, instead of a Census API 400 error."
   );

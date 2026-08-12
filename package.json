@@ -1,5 +1,5 @@
 {
-  "name": "census-trade-mcp-server",
+  "name": "uscensus-intl-trade-api-mcp",
   "version": "1.0.0",
   "description": "MCP server for the U.S. Census Bureau International Trade Data API (monthly exports/imports by HS, NAICS, End-Use, SITC, USDA, and Advanced Technology classifications, plus state and port level detail)",
   "type": "module",

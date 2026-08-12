@@ -2,12 +2,14 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { queryCensusTrade, CensusApiError } from "../services/censusClient.js";
 import { formatRows } from "../services/format.js";
+import { validateSummaryLevel2 } from "../data/summaryLevels.js";
 import {
   datasetSchema,
   getFieldsSchema,
   filtersSchema,
   commLevelSchema,
   summaryLevelSchema,
+  summaryLevel2Schema,
   responseFormatSchema,
 } from "../schemas/trade.js";
 import type { TradeDirection } from "../types.js";
@@ -39,6 +41,7 @@ const QueryInputSchema = z
     filters: filtersSchema,
     comm_level: commLevelSchema,
     summary_level: summaryLevelSchema,
+    summary_level2: summaryLevel2Schema,
     limit: z
       .number()
       .int()
@@ -65,6 +68,15 @@ async function runQuery(direction: TradeDirection, params: QueryInput) {
     };
   }
 
+  let summaryLevel2 = params.summary_level2;
+  if (summaryLevel2) {
+    const error = validateSummaryLevel2(direction, params.dataset, summaryLevel2);
+    if (error) {
+      return { isError: true, content: [{ type: "text" as const, text: `Error: ${error}` }] };
+    }
+    summaryLevel2 = summaryLevel2.toUpperCase();
+  }
+
   try {
     const rows = await queryCensusTrade({
       direction,
@@ -76,6 +88,7 @@ async function runQuery(direction: TradeDirection, params: QueryInput) {
       filters: params.filters,
       commLevel: params.comm_level,
       summaryLevel: params.summary_level,
+      summaryLevel2,
     });
 
     const limited = rows.slice(0, params.limit);
@@ -103,6 +116,8 @@ Best practices (per the Census API User Guide):
   - Only use commodity-classification parameters that match the chosen dataset (e.g. don't filter by NAICS on the "hs" dataset) - use census_trade_get_dataset_variables to check.
   - Results are NOT sorted by value; if you need a ranked list (e.g. top trading partners), use census_trade_get_top_partners instead, or sort the returned rows yourself.
   - A request that returns zero rows is not necessarily an error - it may just mean there was no trade for that combination of filters and time period.
+  - Quantity fields (QTY_1_MO, QTY_2_MO, GEN_QY1_MO, GEN_QY2_MO, CON_QY1_MO, CON_QY2_MO, and *_YR variants) report "0" for both true zeros and missing/unavailable data. Always also request the matching *_FLAG field (e.g. QTY_1_MO_FLAG) - "M" means missing, blank means a true zero - or you cannot tell the two apart.
+  - Requesting CTY_CODE without summary_level="DET" returns individual countries AND regional/bloc groupings (e.g. "4XXX" Europe, "0001" OPEC) mixed in the same response. Summing a value field across all returned rows will double-count. Set summary_level="DET" before aggregating across countries yourself.
 
 Returns: Rows as either a markdown table or JSON, each row containing the fields requested in "get" plus "time".`;
 
@@ -123,6 +138,7 @@ Args:
   - filters (object, optional): e.g. {"CTY_CODE":"1220"} for Canada, {"E_COMMODITY":"0805*"} for HS codes starting with 0805 (citrus fruit)
   - comm_level (string, optional): e.g. "HS2" to get 2-digit HS totals instead of full detail
   - summary_level (string, optional): "DET" for individual countries only, "CGP" for country groupings only
+  - summary_level2 (string, optional): e.g. "HSDTCY" to restrict to HS-by-district-by-country summarized rows (see Census API User Guide Appendix C for the full list of valid export combinations)
   - limit (number, default 100): max rows returned
   - response_format ('markdown' | 'json', default 'markdown')
 ${SHARED_DESCRIPTION_TAIL}
@@ -159,6 +175,7 @@ Args:
   - filters (object, optional): e.g. {"CTY_CODE":"5700"} for China, {"I_COMMODITY":"8471*"} for HS codes starting with 8471 (computers)
   - comm_level (string, optional): e.g. "HS2" to get 2-digit HS totals instead of full detail
   - summary_level (string, optional): "DET" for individual countries only, "CGP" for country groupings only
+  - summary_level2 (string, optional): e.g. "HSDTCY" to restrict to HS-by-district-by-country summarized rows (see Census API User Guide Appendix D for the full list of valid import combinations)
   - limit (number, default 100): max rows returned
   - response_format ('markdown' | 'json', default 'markdown')
 ${SHARED_DESCRIPTION_TAIL}

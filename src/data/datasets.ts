@@ -22,7 +22,8 @@ export const DATASETS: DatasetInfo[] = [
     dataset: "hs",
     name: "Harmonized System (HS)",
     description:
-      "The most detailed commodity classification available (2, 4, 6, or 10-digit HS codes), broken out by country and customs district. This is the best starting point for most commodity-level questions.",
+      "The most detailed commodity classification available (2, 4, 6, or 10-digit HS codes), broken out by country and customs district. This is the best starting point for most commodity-level questions. " +
+      "The only dataset with quantity fields (QTY_1_MO, GEN_QY1_MO, etc.) - always request the matching *_FLAG field alongside a quantity field to distinguish true zeros from missing data.",
     detailExports: "2-,4-,6-,&10-digit HS by Country by District by Domestic/Foreign (DF)",
     detailImports: "2-,4-,6-,&10-digit HS by Country by District by Rate Provision by Country Subcode",
     exportCodeParams: ["E_COMMODITY", "E_COMMODITY_LDESC", "E_COMMODITY_SDESC"],
@@ -79,7 +80,8 @@ export const DATASETS: DatasetInfo[] = [
     dataset: "statehs",
     name: "HS by State",
     description:
-      "HS commodity trade data broken out by U.S. state of origin (exports) or destination (imports) instead of customs district. Limited to 2-, 4-, and 6-digit HS codes to protect respondent confidentiality (no 10-digit detail).",
+      "HS commodity trade data broken out by U.S. state of origin (exports) or destination (imports) instead of customs district. Limited to 2-, 4-, and 6-digit HS codes to protect respondent confidentiality (no 10-digit detail). " +
+      "Quantity fields on this dataset also need their matching *_FLAG field to distinguish true zeros from missing data.",
     detailExports: "2-,4-,&6-digit HS by Country by State",
     detailImports: "2-,4-,&6-digit HS by Country by State",
     exportCodeParams: ["E_COMMODITY", "E_COMMODITY_LDESC", "E_COMMODITY_SDESC"],
@@ -99,7 +101,8 @@ export const DATASETS: DatasetInfo[] = [
     dataset: "porths",
     name: "HS by Port",
     description:
-      "HS commodity trade data broken out by U.S. Customs port of entry/exit instead of district. Limited to 2-, 4-, and 6-digit HS codes to protect respondent confidentiality.",
+      "HS commodity trade data broken out by U.S. Customs port of entry/exit instead of district. Limited to 2-, 4-, and 6-digit HS codes to protect respondent confidentiality. " +
+      "Quantity fields on this dataset also need their matching *_FLAG field to distinguish true zeros from missing data.",
     detailExports: "2-,4-,&6-digit HS by Country by Port",
     detailImports: "2-,4-,&6-digit HS by Country by Port",
     exportCodeParams: ["E_COMMODITY", "E_COMMODITY_LDESC", "E_COMMODITY_SDESC"],

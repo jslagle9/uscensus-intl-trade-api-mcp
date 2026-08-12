@@ -40,10 +40,24 @@ export interface CountryEntry {
   code: string;
   name: string;
   iso: string;
+  additionalInfo?: string;
 }
 
 /** A country grouping code (e.g. OPEC, European Union, regions). */
 export interface CountryGroupEntry {
   code: string;
   name: string;
+}
+
+/** A U.S. Customs district entry from the Census Bureau's Schedule D district/port list. */
+export interface DistrictEntry {
+  code: string;
+  name: string;
+}
+
+/** A U.S. Customs port entry from the Census Bureau's Schedule D district/port list, belonging to one district. */
+export interface PortEntry {
+  code: string;
+  name: string;
+  districtCode: string;
 }

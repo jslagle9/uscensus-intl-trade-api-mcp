@@ -21,7 +21,7 @@ import { registerAnalysisTools } from "./tools/analysis.js";
 import { registerCountryTools } from "./tools/countries.js";
 
 const server = new McpServer({
-  name: "census-trade-mcp-server",
+  name: "uscensus-intl-trade-api-mcp",
   version: "1.0.0",
 });
 
@@ -44,7 +44,7 @@ async function runStdio(): Promise<void> {
   requireApiKey();
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("census-trade-mcp-server running via stdio");
+  console.error("uscensus-intl-trade-api-mcp server running via stdio");
 }
 
 async function runHttp(): Promise<void> {
@@ -64,7 +64,7 @@ async function runHttp(): Promise<void> {
 
   const port = parseInt(process.env.PORT || "3000", 10);
   app.listen(port, "127.0.0.1", () => {
-    console.error(`census-trade-mcp-server running on http://127.0.0.1:${port}/mcp`);
+    console.error(`uscensus-intl-trade-api-mcp server running on http://127.0.0.1:${port}/mcp`);
   });
 }
 

@@ -1,4 +1,4 @@
-# census-trade-mcp-server
+# uscensus-intl-trade-api-mcp
 
 An MCP (Model Context Protocol) server for the U.S. Census Bureau's [International Trade Data API](https://www.census.gov/data/developers/data-sets/international-trade.html) — monthly U.S. export and import statistics, January 2010–present, by Harmonized System (HS), NAICS, End-Use, SITC, USDA (Ag/Non-Ag), and Advanced Technology classifications, plus state- and port-level detail.
 
@@ -21,7 +21,7 @@ An MCP (Model Context Protocol) server for the U.S. Census Bureau's [Internation
      "mcpServers": {
        "census-trade": {
          "command": "node",
-         "args": ["/absolute/path/to/census-trade-mcp-server/dist/index.js"],
+         "args": ["/absolute/path/to/uscensus-intl-trade-api-mcp/dist/index.js"],
          "env": { "CENSUS_API_KEY": "your_40_character_key_here" }
        }
      }
@@ -68,5 +68,7 @@ python evaluation/evaluation.py \
 - Don't mix commodity-classification parameters across datasets (e.g. don't filter by `NAICS` on the `hs` dataset).
 - Large, unfiltered queries (e.g. all countries × all 10-digit HS codes) commonly time out — narrow with filters or split wildcard queries (`E_COMMODITY=1*`, then `2*`, etc.) and combine client-side.
 - A response with zero rows isn't necessarily an error — it can just mean no trade occurred for that filter combination.
+- Quantity fields (`QTY_1_MO`, `QTY_2_MO`, `GEN_QY1_MO`, `GEN_QY2_MO`, `CON_QY1_MO`, `CON_QY2_MO`, and their `*_YR` variants) report `"0"` for both true zeros and missing/unavailable data — always request the matching `*_FLAG` field (e.g. `QTY_1_MO_FLAG`) alongside a quantity field; `"M"` means missing, blank means a true zero.
+- Requesting `CTY_CODE` without `summary_level="DET"` returns individual countries *and* regional/bloc groupings (e.g. `4XXX` Europe, `0001` OPEC) mixed in the same response — summing across all rows double-counts. Set `summary_level="DET"` before aggregating across countries yourself.
 
 Full reference: [Census International Trade Data API User Guide (PDF)](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf).
